@@ -23,7 +23,7 @@ function addGlass() {
         updateIds()
         calcPrice()
     } else {
-        alert("Du har fyllt i felaktiga värden")
+        alert("Du har fyllt i felaktiga värden hej")
     }
 }
 
