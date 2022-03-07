@@ -4,7 +4,9 @@ let currentGlass = []
 //Renders a div and inserts the submitted form values
 function addGlass() {
     const data = $('#glass-size').serializeArray()
-    if (data[0].value >= 1 && data[1].value >= 100 && data[2].value >= 100) {
+    console.log(data);
+    if (data[0].value > 0 && data[1].value > 99 && data[2].value > 99
+        && data[1].value < 2001 && data[2].value < 2001) {
         currentGlass.push(data)
         let nodeString = `Antal: ${data[0].value}\tGlasbredd: ${data[1].value}\tGlashöjd: ${data[2].value}`
 

@@ -1,0 +1,278 @@
+<body>
+    <div style="background-color: #fafafa; border-radius: .5em;">
+        <div class="row__container js-row-container">
+            <h2 style="margin-bottom: .5em;">Beräkna pris på isolerglas</h2>
+            <br>
+            <h5 style="margin-top: .5em;">Glasmått i mm</h5>
+            <hr class="line line__rule">
+            <form id="glass-size">
+                <div style="margin-bottom: 0.5em">
+                    <label class="label label--single-line" for="qty">Antal</label>
+                    <input style="background: #ededed; border-radius: .2em;"
+                        class="input input--number input--single-line" placeholder="Antal" type="number" name="qty"
+                        id="qty" value="1">
+                </div>
+                <div style="margin-bottom: 0.5em">
+                    <label class="label label--single-line" for="height">Glasbredd (mm)</label>
+                    <input style="background: #ededed; border-radius: .2em;"
+                        class="input input--number input--single-line" placeholder="Glasbredd (mm)" type="number"
+                        name="width" id="width">
+                </div>
+                <div style="margin-bottom: 0.5em">
+                    <label class="label label--single-line" for="height">Glashöjd (mm)</label>
+                    <input style="background: #ededed; border-radius: .2em;"
+                        class="input input--number input--single-line" placeholder="Glashöjd (mm)" type="number"
+                        name="height" id="height">
+                </div>
+                <br>
+                <div>
+                    <button style="margin-top: .5em; padding: .2em;" type="button" onclick="addGlass()">Lägg till nytt
+                        mått</button>
+                </div>
+                <hr class="line line__rule">
+            </form>
+            <br>
+            <hr style="visibility: hidden;" class="line line__rule">
+            <h5>Tillagda glas</h5>
+            <div id="div1"></div>
+            <hr style="visibility: hidden;" class="line line__rule">
+            <div>
+                <button style="padding: .2em" type="button" onclick="clearList()">Ta bort samtliga tillagda
+                    glas</button>
+            </div>
+            <br>
+            <hr style="visibility: hidden;" class="line line__rule">
+            <div>
+                <form id="glass-type">
+                    <div>
+                        <input type="radio" onclick="toggleRadio(); calcPrice()"
+                            style="appearance: radio; -webkit-appearance: radio; margin-top: .3em" id="D4-12"
+                            name="type-radio" value="D4-12" checked>
+                        <label for="D4-12">2-glas</label>
+                    </div>
+                    <div>
+                        <input type="radio" onclick="toggleRadio(); calcPrice()"
+                            style="appearance: radio; -webkit-appearance: radio; margin-top: .3em" id="T4-12"
+                            name="type-radio" value="T4-12">
+                        <label for="T4-12">3-glas</label>
+                    </div>
+                </form>
+            </div>
+            <hr style="visibility: hidden;" class="line line__rule">
+            <div style="margin-top: .5em">
+                <form id="energy_type">
+                    <div>
+                        <div>
+                            <input type="radio" onclick="calcPrice()"
+                                style="appearance: radio; -webkit-appearance: radio; margin-top: .3em" id="no-energy"
+                                name="kfradio" value="no-energy" checked>
+                            <label for="no-energy">Utan energi</label>
+                        </div>
+                        <div>
+                            <input type="radio" onclick="calcPrice()"
+                                style="appearance: radio; -webkit-appearance: radio; margin-top: .3em" id="energy"
+                                name="kfradio" value="energy">
+                            <label for="energy">Energi</label>
+                        </div>
+                        <div>
+                            <input type="radio" onclick="calcPrice()"
+                                style="appearance: radio; -webkit-appearance: radio; margin-top: .3em"
+                                id="double_energy" name="kfradio" value="double_energy" disabled>
+                            <label for="double_energy">Dubbelenergi</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <hr style="visibility: hidden;" class="line line__rule">
+            <div id="div2"></div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        let isPriceDisplayed = false;
+        let currentGlass = []
+
+        //Renders a div and inserts the submitted form values
+        function addGlass() {
+            const data = $('#glass-size').serializeArray()
+            console.log(data);
+            if (data[0].value > 0 && data[1].value > 99 && data[2].value > 99
+                && data[1].value < 2001 && data[2].value < 2001) {
+                currentGlass.push(data)
+                let nodeString = `Antal: ${data[0].value}\tGlasbredd: ${data[1].value}\tGlashöjd: ${data[2].value}`
+
+                const finalDiv = document.getElementById("div1");
+                const infoDiv = document.createElement("div");
+
+                const newContent = document.createTextNode(nodeString);
+                const removalBtn = document.createElement("button");
+                removalBtn.setAttribute("style", "margin-left: 0.5em;")
+                removalBtn.innerText = "-"
+
+                infoDiv.setAttribute("style", "margin-top: 0.3em")
+                infoDiv.appendChild(newContent);
+                infoDiv.appendChild(removalBtn)
+                finalDiv.appendChild(infoDiv)
+                updateIds()
+                calcPrice()
+            } else {
+                alert("Du har fyllt i felaktiga värden, max bredd och höjd: 2000")
+            }
+        }
+
+        //Calculates the sum of the elements in the #div1 and renders a price in #div2
+        function calcPrice() {
+            const collectionPrice = 190
+            let totalPrice = 0;
+            let totalSqr = 0;
+            const energyType = $('#energy_type').serializeArray()
+            const typeData = getGlassTypeData($('#glass-type').serializeArray()[0].value)
+
+            for (glass of currentGlass) {
+                let sqr = 0
+                let glassWidth = glass[1].value / 1000
+                let glassHeight = glass[2].value / 1000
+                let glassAmount = parseInt(glass[0].value)
+                if ((glassWidth * glassHeight) < 0.5) {
+                    sqr = 0.5
+                } else {
+                    sqr = glassWidth * glassHeight;
+                }
+                totalSqr += sqr
+                totalPrice += getGlassPrice(sqr, typeData, energyType, glassAmount)
+            }
+            totalPrice += collectionPrice
+
+            if (isPriceDisplayed) {
+                let temp = document.querySelector('#div2')
+                removeAllChildNodes(temp)
+            }
+
+            //Removes the collectionprice in case no glass has been added to the list
+            if (currentGlass.length === 0) {
+                totalPrice = 0;
+            }
+
+            const newDiv = document.createElement("div");
+            const finalDiv = document.getElementById("div2");
+            const newPriceHeader = document.createElement("h3")
+            const newDiv1 = document.createElement("div")
+            const newDiv2 = document.createElement("div")
+            const newDeliveryHeader = document.createElement("h3")
+            const newParagraph1 = document.createElement("p");
+            const newContent = document.createTextNode(`Hämtpris: ${Math.round(totalPrice)} kr. ${typeData.type}`);
+            const div2Text = document.createTextNode("Detta pris är inklusive moms och gäller vid hämtning i Kalmar.")
+
+            newDiv.setAttribute("id", "price")
+            newDeliveryHeader.innerHTML = `Beställ och hämta vecka ${getDeliveryWeek(typeData)}`
+            newParagraph1.innerHTML = 'Eller mejla för leveranspris.'
+
+            newDiv.appendChild(newContent);
+            newDiv1.appendChild(newDeliveryHeader)
+            newDiv1.appendChild(newParagraph1);
+            newDiv2.appendChild(div2Text);
+            newPriceHeader.appendChild(newDiv)
+
+            finalDiv.appendChild(newPriceHeader)
+            finalDiv.appendChild(newDiv2);
+            finalDiv.appendChild(document.createElement("br"))
+            finalDiv.appendChild(newDiv1)
+            isPriceDisplayed = true;
+        }
+
+        function getDeliveryWeek(glassType) {
+            const date = new Date
+            let time = date.getWeek() + glassType.deliveryTimeWeeks
+            return time
+        }
+
+        Date.prototype.getWeek = function () {
+            var date = new Date(this.getTime());
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+            var week1 = new Date(date.getFullYear(), 0, 4);
+            return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+                - 3 + (week1.getDay() + 6) % 7) / 7);
+        }
+
+        //Toggles the radio button for "Dubbelenergi" depending on whether "2-glas" or "3-glas" is selected
+        async function toggleRadio() {
+            const DoubleEnergyRadio = document.getElementById("double_energy");
+            const EnergyRadio = document.getElementById("energy");
+            DoubleEnergyRadio.disabled = !DoubleEnergyRadio.disabled;
+            if (DoubleEnergyRadio.disabled && DoubleEnergyRadio.checked) {
+                EnergyRadio.checked = true
+            }
+        }
+
+        function getGlassPrice(sqr, typeData, energyType, amount) {
+            const energyLevel = energyType[0].value
+            let total = 0;
+            if (energyLevel === "no-energy") {
+                total = (sqr * typeData.sqrPrice)
+            } else if (energyLevel === "energy") {
+                total = (sqr * (typeData.sqrPrice + typeData.energy))
+            } else if (energyLevel === "double_energy") {
+                total = (sqr * (typeData.sqrPrice + typeData.double_energy))
+            }
+            total *= amount;
+            return Math.round(total);
+        }
+
+        function getGlassTypeData(type) {
+            switch (type) {
+
+                case "D4-12":
+                    return {
+                        "type": "2-glas",
+                        "sqrPrice": 690,
+                        "no-energy": 0,
+                        "energy": 200,
+                        "deliveryTimeWeeks": 2
+                    }
+
+                case "T4-12":
+                    return {
+                        "type": "3-glas",
+                        "sqrPrice": 890,
+                        "no-energy": 0,
+                        "energy": 200,
+                        "double_energy": 400,
+                        "deliveryTimeWeeks": 2
+                    }
+            }
+        }
+
+        function removeAllChildNodes(parent) {
+            while (parent.firstChild) {
+                parent.removeChild(parent.firstChild);
+            }
+        }
+
+        function clearList() {
+            removeAllChildNodes(document.getElementById('div1'));
+            removeAllChildNodes(document.getElementById('div2'));
+            isPriceDisplayed = false;
+            currentGlass = []
+            calcPrice()
+        }
+
+        function removeSpecific(removalIndex) {
+            currentGlass.splice(removalIndex, 1);
+            document.getElementById(`glassDiv${removalIndex}`).remove();
+            updateIds()
+            calcPrice()
+        }
+
+        function updateIds() {
+            let elements = document.getElementById("div1");
+            let children = elements.children;
+            for (let i = 0; i < children.length; i++) {
+                let child = children[i];
+                child.setAttribute("id", `glassDiv${i}`)
+                child.lastChild.setAttribute("id", `removeBtn${i}`)
+                child.lastChild.setAttribute("onclick", `removeSpecific(${i})`)
+            }
+        }
+    </script>
+</body>
