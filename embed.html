@@ -218,11 +218,13 @@
             const EnergyRadio = document.getElementById("energy");
             const glasRadio = document.getElementById("D4-12")
             if(!glasRadio.checked) {
-                DoubleEnergyRadio.disabled = false
+                DoubleEnergyRadio.disabled = false;
             } else {
-                DoubleEnergyRadio.disabled = true
-                EnergyRadio.checked = true;
-            }
+                DoubleEnergyRadio.disabled = true;
+                if (DoubleEnergyRadio.checked) {
+                    EnergyRadio.checked = true;
+                }
+            };
             if (DoubleEnergyRadio.disabled && DoubleEnergyRadio.checked) {
             };
         };
