@@ -45,7 +45,7 @@
             <div>
                 <form id="glass-type">
                     <div>
-                        <input type="radio" onclick="toggleRadio(); calcPrice()"
+                        <input type="radio" onclick="calcPrice()"
                             style="appearance: radio; -webkit-appearance: radio; margin-top: .3em" id="D4-12"
                             name="type-radio" value="D4-12" checked>
                         <label for="D4-12">2-glas</label>
@@ -138,6 +138,7 @@
 
         //Calculates the sum of the elements in the #div1 and renders a price in #div2
         function calcPrice() {
+            toggleRadio();
             const collectionPrice = 190;
             let totalPrice = 0;
             let totalSqr = 0;
@@ -215,9 +216,14 @@
         async function toggleRadio() {
             const DoubleEnergyRadio = document.getElementById("double_energy");
             const EnergyRadio = document.getElementById("energy");
-            DoubleEnergyRadio.disabled = !DoubleEnergyRadio.disabled;
-            if (DoubleEnergyRadio.disabled && DoubleEnergyRadio.checked) {
+            const glasRadio = document.getElementById("D4-12")
+            if(!glasRadio.checked) {
+                DoubleEnergyRadio.disabled = false
+            } else {
+                DoubleEnergyRadio.disabled = true
                 EnergyRadio.checked = true;
+            }
+            if (DoubleEnergyRadio.disabled && DoubleEnergyRadio.checked) {
             };
         };
 
