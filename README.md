@@ -1,4 +1,5 @@
 # GlasNet-Component
+### (This was built before starting my studies and is here for nostalgia purposes only, although still in production for some reason)
 Program made to calculate prices of glazed windows for customers, this is in production.
 
 It uses the embed function of the sitebuilder. This is the reason that the JS is embeded in the html doc. 
